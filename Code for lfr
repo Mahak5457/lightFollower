@@ -1,0 +1,97 @@
+int IN1=11;
+int IN2=5;
+int IN3=9;
+int IN4=3;
+
+int x;
+
+int speedControl1  = A0;
+int speedControl2 =  A1;
+
+int MotorSpeed1 = 0;
+int MotorSpeed2 = 0;
+
+float motorSpeed;
+
+float Kp = 0.8;
+
+void setup() {
+  // put your setup code here, to run once:
+pinMode(IN1, OUTPUT);
+pinMode(IN3, OUTPUT);
+pinMode(IN2, OUTPUT);
+pinMode(IN4, OUTPUT);
+  pinMode(speedControl1, INPUT);
+  pinMode(speedControl2, INPUT);
+ Serial.begin(9600);
+}
+
+void loop() {
+  // put your main code here, to run repeatedly:
+ analogWrite(IN2,0);
+ analogWrite(IN3,0);
+
+
+
+  MotorSpeed1 = analogRead(speedControl1);
+  MotorSpeed2 = analogRead(speedControl2) + 60;
+
+ Serial.print(MotorSpeed1);
+  Serial.print(" ");
+  Serial.print(MotorSpeed2);
+ Serial.print("\n");
+ 
+int  MotorSpeedl  = map(MotorSpeed1, 0, 1023, 0, 255);
+int MotorSpeedr = map(MotorSpeed2, 0, 1023, 0, 255);
+
+  x = (MotorSpeedl>MotorSpeedr)?(MotorSpeedl-MotorSpeedr):(MotorSpeedr-MotorSpeedl);
+    motorSpeed = x*Kp;
+    int Speed = map(motorSpeed,1,500,0,75);
+
+
+if(MotorSpeed1<120 && MotorSpeed2<120)
+{
+  analogWrite(IN1, 0);
+  analogWrite(IN4, 0);
+  Serial.println("Stop");
+}
+
+
+else if(x < 50)
+{
+   analogWrite(IN1, 165);
+  analogWrite(IN4, 165);
+  Serial.println("Straight");
+}
+  
+ else if(MotorSpeedl > MotorSpeedr)                               
+ { 
+
+   analogWrite(IN1,165-Speed);
+   if((165+Speed) < 250)
+    analogWrite(IN4,165+Speed);
+   else
+    analogWrite(IN4,250);
+    Serial.print("right");
+    Serial.print(" ");
+    Serial.print(165-Speed);
+    Serial.print(" ");
+     Serial.println(165+Speed);
+  }
+
+
+  else if(MotorSpeedr > MotorSpeedl)
+{
+  analogWrite(IN4, 165-Speed);
+  if((165+Speed) < 250)
+   analogWrite(IN1, 165+Speed);
+  else
+    analogWrite(IN1, 250);
+      Serial.print("left");
+    Serial.print(" ");
+    Serial.print(165+Speed);
+    Serial.print(" ");
+    Serial.println(165-Speed);
+}
+  Serial.println(motorSpeed);
+}
